@@ -26,6 +26,7 @@ echo "<a href=\"https://github.com/eDad2003/BirdNET-Pi.git\" target=\"_blank\"><
 #echo "<a href=\"https://github.com/Nachtzuster/BirdNET-Pi.git\" target=\"_blank\"><img src=\"images/bird.png\"></a>";
 echo "<a href=\"https://github.com/eDad2003/BirdNET-Pi.git\" target=\"_blank\"><img src=\"images/bird.png\"></a>";
 }?>
+  <div>eDad2003 Dev Branch</div>
   </div>
 
 
