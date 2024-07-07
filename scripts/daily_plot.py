@@ -40,9 +40,9 @@ def show_values_on_bars(ax, label):
         y = p.get_y() + p.get_height() / 2
         # Species confidence
         # value = '{:.0%}'.format(label.iloc[i])
-        value = '{:.0%}'.format(label.iloc[i])
         # Species Count Total
-        #value = '{:n}'.format(p.get_width())
+        value = '{:n}'.format(p.get_width())
+        value = 10
         bbox = {'facecolor': 'lightgrey', 'edgecolor': 'none', 'pad': 1.0}
         ax.text(x, y, value, bbox=bbox, ha='center', va='center', size=9, color='darkgreen')
 
