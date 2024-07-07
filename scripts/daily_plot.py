@@ -76,7 +76,8 @@ def create_plot(df_plt_today, now, is_top=None):
     if is_top or is_top is None:
         # Set Palette for graphics
         pal = "Greens"
-        colors = plt.cm.Greens(norm(confmax)).tolist()
+        #colors = plt.cm.Greens(norm(confmax)).tolist()
+        colors = plt.cm.Reds(norm(confmax)).tolist()
         if is_top:
             plot_type = "Top"
         else:
