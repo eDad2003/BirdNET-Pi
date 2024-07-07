@@ -62,6 +62,7 @@ def create_plot(df_plt_today, now, is_top=None):
     # Set up plot axes and titles
     height = max(readings / 3, 0) + 1.06
     #f, axs = plt.subplots(1, 2, figsize=(10, height), gridspec_kw=dict(width_ratios=[3, 6]), facecolor='#77C487')
+    # red border
     f, axs = plt.subplots(1, 2, figsize=(10, height), gridspec_kw=dict(width_ratios=[3, 6]), facecolor='#990000')
 
     # generate y-axis order for all figures based on frequency
@@ -76,8 +77,9 @@ def create_plot(df_plt_today, now, is_top=None):
     norm = plt.Normalize(confmax.values.min(), confmax.values.max())
     if is_top or is_top is None:
         # Set Palette for graphics
-        pal = "Greens"
+        #pal = "Greens" //no longer needed for cmap argument that follows below
         #colors = plt.cm.Greens(norm(confmax)).tolist()
+        pal="Reds"
         colors = plt.cm.Reds(norm(confmax)).tolist()
         if is_top:
             plot_type = "Top"
@@ -121,7 +123,7 @@ def create_plot(df_plt_today, now, is_top=None):
     heat[heat == 0] = np.nan
 
     # Generatie heatmap plot
-    plot = sns.heatmap(heat, norm=LogNorm(),  annot=True,  annot_kws={"fontsize": 7}, fmt="g", cmap=pal, square=False,
+    plot = sns.heatmap(heat, norm=LogNorm(),  annot=True,  annot_kws={"fontsize": 7}, fmt="g", cmap=colors, square=False,
                        cbar=False, linewidths=0.5, linecolor="Grey", ax=axs[1], yticklabels=False)
 
     # Set color and weight of tick label for current hour
