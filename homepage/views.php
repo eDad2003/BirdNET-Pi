@@ -58,7 +58,7 @@ elseif ($config["LONGITUDE"] == "0.000") {
 <body>
 <form action="views.php" method="GET" id="views">
 <div class="topnav" id="myTopnav">
-  <button type="submit" name="view" value="Overview" form="views">Overviews</button>
+  <button type="submit" name="view" value="Overview" form="views">Overview</button>
   <button type="submit" name="view" value="Todays Detections" form="views">Today's Detections</button>
   <button type="submit" name="view" value="Spectrogram" form="views">Spectrogram</button>
   <button type="submit" name="view" value="Species Stats" form="views">Best Recordings</button>
