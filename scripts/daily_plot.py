@@ -40,6 +40,7 @@ def show_values_on_bars(ax, label):
         y = p.get_y() + p.get_height() / 2
         # Species confidence
         # value = '{:.0%}'.format(label.iloc[i])
+        value = '{:.0%}'.format(label.iloc[i])
         # Species Count Total
         value = '{:n}'.format(p.get_width())
         bbox = {'facecolor': 'lightgrey', 'edgecolor': 'none', 'pad': 1.0}
@@ -69,7 +70,7 @@ def create_plot(df_plt_today, now, is_top=None):
     # make color for max confidence --> this groups by name and calculates max conf
     confmax = df_plt_selection_today.groupby('Com_Name')['Confidence'].max()
     # reorder confmax to detection frequency order
-    #confmax = confmax.reindex(freq_order)
+    confmax = confmax.reindex(freq_order)
 
     # norm values for color palette
     norm = plt.Normalize(confmax.values.min(), confmax.values.max())
