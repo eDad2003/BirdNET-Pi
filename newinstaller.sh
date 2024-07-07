@@ -44,8 +44,10 @@ if [[ ! -z $PACKAGES_MISSING ]] ; then
   sudo apt -y install $PACKAGES_MISSING
 fi
 
-branch=main
-git clone -b $branch --depth=1 https://github.com/Nachtzuster/BirdNET-Pi.git ${HOME}/BirdNET-Pi &&
+#branch=main
+#git clone -b $branch --depth=1 https://github.com/Nachtzuster/BirdNET-Pi.git ${HOME}/BirdNET-Pi &&
+branch=dev
+git clone -b $branch --depth=1 https://github.com/eDad2003/BirdNET-Pi.git ${HOME}/BirdNET-Pi &&
 
 $HOME/BirdNET-Pi/scripts/install_birdnet.sh
 if [ ${PIPESTATUS[0]} -eq 0 ];then
