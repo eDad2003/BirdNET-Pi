@@ -71,13 +71,13 @@ def create_plot(df_plt_today, now, is_top=None):
     # make color for max confidence --> this groups by name and calculates max conf
     confmax = df_plt_selection_today.groupby('Com_Name')['Confidence'].max()
     # reorder confmax to detection frequency order
-    confmax = confmax.reindex(freq_order)
+    # confmax = confmax.reindex(freq_order)
 
     # norm values for color palette
     norm = plt.Normalize(confmax.values.min(), confmax.values.max())
     if is_top or is_top is None:
         # Set Palette for graphics
-        #pal = "Greens" //no longer needed for cmap argument that follows below
+        #pal = "Greens"
         #colors = plt.cm.Greens(norm(confmax)).tolist()
         pal="Reds"
         colors = plt.cm.Reds(norm(confmax)).tolist()
