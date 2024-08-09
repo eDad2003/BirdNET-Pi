@@ -45,3 +45,6 @@ firstrun.ini
 HUMAN.txt
 include_species_list.txt
 /nbproject/private/
+homepage/images/.DS_Store
+.project
+homepage/.buildpath
