@@ -116,7 +116,7 @@ def write_to_file(file: ParseFileName, detection: Detection):
         rfile.write(f'{summary(file, detection)}\n')
 
 def exec_extra_action(detection: Detection):
-    log.error(f'(Testing) Extra action requested for {detection} detection.')
+    log.error(f'(Testing) Extra action requested for {detection.common_name} detection.')
 
 def update_json_file(file: ParseFileName, detections: [Detection]):
     if file.RTSP_id is None:
