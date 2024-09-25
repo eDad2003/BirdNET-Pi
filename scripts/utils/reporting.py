@@ -115,6 +115,8 @@ def write_to_file(file: ParseFileName, detection: Detection):
     with open(os.path.expanduser('~/BirdNET-Pi/BirdDB.txt'), 'a') as rfile:
         rfile.write(f'{summary(file, detection)}\n')
 
+def do_extra_action(detection: Detection):
+    log.error(f'(Testing) Extra action requested for {detection} detection.')
 
 def update_json_file(file: ParseFileName, detections: [Detection]):
     if file.RTSP_id is None:
