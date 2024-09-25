@@ -9,7 +9,7 @@ import librosa
 import numpy as np
 
 from utils.helpers import get_settings, Detection
-from utils.reporting import exec_extra_action
+#from utils.reporting import exec_extra_action
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['CUDA_VISIBLE_DEVICES'] = ''
@@ -331,7 +331,7 @@ def run_analysis(file):
     for time_slot, entries in raw_detections.items():
         log.info('%s-%s', time_slot, entries[0])
         for entry in entries:
-            exec_extra_action(entry[0])
+            #exec_extra_action(entry[0])
             if entry[1] >= conf.getfloat('CONFIDENCE') and ((entry[0] in INCLUDE_LIST or len(INCLUDE_LIST) == 0)
                                                             and (entry[0] not in EXCLUDE_LIST or len(EXCLUDE_LIST) == 0)
                                                             and (entry[0] in PREDICTED_SPECIES_LIST
