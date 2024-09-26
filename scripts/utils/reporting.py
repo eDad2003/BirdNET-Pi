@@ -116,7 +116,15 @@ def write_to_file(file: ParseFileName, detection: Detection):
         rfile.write(f'{summary(file, detection)}\n')
 
 def exec_extra_action(detection: Detection):
+    OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
     log.error(f'(Testing) Extra action requested for {detection.common_name} detection.')
+    result = subprocess.run(['aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'.split(' ')],
+                            check=True, capture_output=True)
+    ret = result.stdout.decode('utf-8')
+    err = result.stderr.decode('utf-8')
+    if err:
+        raise RuntimeError(f'{ret}:\n {err}')
+    return ret
 
 def update_json_file(file: ParseFileName, detections: [Detection]):
     if file.RTSP_id is None:
