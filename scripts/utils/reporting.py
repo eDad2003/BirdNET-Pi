@@ -116,7 +116,7 @@ def write_to_file(file: ParseFileName, detection: Detection):
     with open(os.path.expanduser('~/BirdNET-Pi/BirdDB.txt'), 'a') as rfile:
         rfile.write(f'{summary(file, detection)}\n')
 
-def exec_extra_action(detection: Detection):
+async def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
     EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     com_name = detection.common_name
