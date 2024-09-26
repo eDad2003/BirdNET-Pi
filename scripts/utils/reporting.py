@@ -128,7 +128,7 @@ def exec_extra_action(detection: Detection):
             stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await process.communicate()
-        if process.returncode == 0"
+        if process.returncode == 0:
             print(f'Played owl: {stdout.decode()}')
         else:
             print(f'Error play Owl: {stderr.decode()}')
