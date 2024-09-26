@@ -4,6 +4,7 @@ import gzip
 import json
 import logging
 import os
+import asyncio
 import sqlite3
 import subprocess
 from time import sleep
@@ -117,11 +118,22 @@ def write_to_file(file: ParseFileName, detection: Detection):
 
 def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
+    EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     com_name = detection.common_name
     if com_name.upper().find("WOODPECKER") >= 0:
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
-        result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
-                                check=True, capture_output=True)
+        process = await asyncio.create_subprocess_shell(
+            EXEC_COMMAND,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await process.communicate()
+        if process.returncode == 0"
+            print(f'Played owl: {stdout.decode()}')
+        else:
+            print(f'Error play Owl: {stderr.decode()}')
+        #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
+        #                        check=True, capture_output=True)
     # the standard error handling as used in above fns() doesn't work here, as 
     # aplay is reporting playback stats to stderr
     #ret = result.stdout.decode('utf-8')
