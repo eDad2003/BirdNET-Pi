@@ -114,7 +114,7 @@ def handle_reporting_queue(queue):
                 log.info('%s;%s', summary(file, detection), os.path.basename(detection.file_name_extr))
                 write_to_file(file, detection)
                 write_to_db(file, detection)
-                await exec_extra_action(detection)
+                exec_extra_action(detection)
             apprise(file, detections)
             bird_weather(file, detections)
             heartbeat()
