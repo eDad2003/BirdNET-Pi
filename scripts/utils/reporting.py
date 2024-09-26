@@ -118,7 +118,7 @@ def write_to_file(file: ParseFileName, detection: Detection):
 def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
     log.error(f'(Testing) Extra action requested for {detection.common_name} detection.')
-    result = subprocess.run(['aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'.split(' ')],
+    result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
                             check=True, capture_output=True)
     ret = result.stdout.decode('utf-8')
     err = result.stderr.decode('utf-8')
