@@ -117,15 +117,19 @@ def write_to_file(file: ParseFileName, detection: Detection):
 
 def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
-    log.error(f'(Testing) Extra action requested for {detection.common_name} detection.')
-    result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
-                            check=True, capture_output=True)
-    ret = result.stdout.decode('utf-8')
-    err = result.stderr.decode('utf-8')
-    if err:
-        log.error(f'error playing Owl sound ret= {ret} err={err}')
-        #raise RuntimeError(f'{ret}:\n {err}')
-    return ret
+    com_name = detection.common_name
+    if com_name.upper().find("WOODPECKER") >= 0:
+        log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
+        result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
+                                check=True, capture_output=True)
+    # the standard error handling as used in above fns() doesn't work here, as 
+    # aplay is reporting playback stats to stderr
+    #ret = result.stdout.decode('utf-8')
+    #err = result.stderr.decode('utf-8')
+    #if err:
+    #    log.error(f'error playing Owl sound ret= {ret} err={err}')
+    #    raise RuntimeError(f'{ret}:\n {err}')
+    #return ret
 
 def update_json_file(file: ParseFileName, detections: [Detection]):
     if file.RTSP_id is None:
