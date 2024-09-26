@@ -124,7 +124,7 @@ def exec_extra_action(detection: Detection):
     err = result.stderr.decode('utf-8')
     if err:
         log.error('error playing Owl sound')
-        raise RuntimeError(f'{ret}:\n {err}')
+        #raise RuntimeError(f'{ret}:\n {err}')
     return ret
 
 def update_json_file(file: ParseFileName, detections: [Detection]):
