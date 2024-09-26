@@ -123,6 +123,7 @@ def exec_extra_action(detection: Detection):
     ret = result.stdout.decode('utf-8')
     err = result.stderr.decode('utf-8')
     if err:
+        log.error('error playing Owl sound')
         raise RuntimeError(f'{ret}:\n {err}')
     return ret
 
