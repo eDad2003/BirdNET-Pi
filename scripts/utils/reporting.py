@@ -128,7 +128,7 @@ def exec_extra_action(detection: Detection):
         log.info (f'EXEC_COMMAND={EXEC_COMMAND} {OWL_SOUND_WAV}')
         #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
         #                        check=True, capture_output=True)
-        result = subprocess.run([f'{EXEC_COMMAND}', f'{OWL_SOUND_WAV}'],
+        result = subprocess.run([f'{EXEC_COMMAND} {OWL_SOUND_WAV}'],
                                 check=True, capture_output=True)
     # the standard error handling as used in above fns() doesn't work here, as 
     # aplay is reporting playback stats to stderr
