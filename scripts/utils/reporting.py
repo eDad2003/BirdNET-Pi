@@ -124,6 +124,7 @@ def exec_extra_action(detection: Detection):
     com_name = detection.common_name
     if com_name.upper().find('WOODPECKER') >= 0:
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
+        log.info (f'EXEC_COMMAND={EXEC_COMMAND} {OWL_SOUND_WAV}')
         #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
         #                        check=True, capture_output=True)
         result = subprocess.run([f'{EXEC_COMMAND}', f'{OWL_SOUND_WAV}'],
