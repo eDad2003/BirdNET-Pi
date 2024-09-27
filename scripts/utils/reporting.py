@@ -119,9 +119,9 @@ def exec_extra_action(detection: Detection):
     conf=get_settings()
     #OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
     OWL_SOUND_WAV = os.path.expanduser(f'~/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]}')
-    log.info (f'EXEC_COMMAND={EXEC_COMMAND} {OWL_SOUND_WAV}')
     #EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     EXEC_COMMAND = f'{conf["EEC_EXEC"]}'
+    log.info (f'EXEC_COMMAND={EXEC_COMMAND} {OWL_SOUND_WAV}')
     com_name = detection.common_name
     if com_name.upper().find('WOODPECKER') >= 0:
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
