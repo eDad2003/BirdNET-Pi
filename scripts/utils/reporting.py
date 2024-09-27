@@ -118,7 +118,7 @@ def write_to_file(file: ParseFileName, detection: Detection):
 def exec_extra_action(detection: Detection):
     conf=get_settings()
     #OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
-    OWL_SOUND_WAV = os.path.expanduser(f'~/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]})
+    OWL_SOUND_WAV = os.path.expanduser(f'~/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]}')
     log.info (f'EXEC_COMMAND={EXEC_COMMAND} {OWL_SOUND_WAV}')
     #EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     EXEC_COMMAND = f'{conf["EEC_EXEC"]}'
