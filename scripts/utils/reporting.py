@@ -121,15 +121,15 @@ def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = os.path.expanduser(f'~/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]}')
     #EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     EXEC_COMMAND = f'{conf["EEC_EXEC"]} {OWL_SOUND_WAV}'
-    log.info (f'EXEC_COMMAND={EXEC_COMMAND}')
+    #log.info (f'EXEC_COMMAND={EXEC_COMMAND}')
     com_name = detection.common_name
     if com_name.upper().find('WOODPECKER') >= 0:
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
-        log.info (f'EXEC_COMMAND={EXEC_COMMAND}')
-        #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
-        #                        check=True, capture_output=True)
-        result = subprocess.run([EXEC_COMMAND.split(' ')],
+        #log.info (f'EXEC_COMMAND={EXEC_COMMAND}')
+        result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
                                 check=True, capture_output=True)
+        #result = subprocess.run([EXEC_COMMAND.split(' ')],
+        #                        check=True, capture_output=True)
     # the standard error handling as used in above fns() doesn't work here, as 
     # aplay is reporting playback stats to stderr
     #ret = result.stdout.decode('utf-8')
