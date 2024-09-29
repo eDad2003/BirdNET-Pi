@@ -16,7 +16,7 @@ from .helpers import get_settings, ParseFileName, Detection, DB_PATH
 from .notifications import sendAppriseNotifications
 
 log = logging.getLogger(__name__)
-eec_time = time.now()
+eec_time = time.time()
 
 
 def get_safe_title(title):
@@ -123,13 +123,13 @@ def exec_extra_action(detection: Detection):
     OWL_SOUND_WAV = os.path.expanduser(f'~/BirdNET-Pi/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]}')
     EXEC_COMMAND = f'{conf["EEC_EXEC"]} {OWL_SOUND_WAV}'
     com_name = detection.common_name
-    if com_name.upper().find('WOODPECKER') >= 0 and (time.now()-eec_time >=60):
+    if com_name.upper().find('WOODPECKER') >= 0 and (time.time()-eec_time >=60):
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
         #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
         #                        check=True, capture_output=True)
         result = subprocess.run(EXEC_COMMAND.split(' '),
                                 check=True, capture_output=True)
-        eec_time = time.now()
+        eec_time = time.time()
     # the standard error handling as used in above fns() doesn't work here, as 
     # aplay is reporting playback stats to stderr
     #ret = result.stdout.decode('utf-8')
