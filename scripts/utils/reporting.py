@@ -1,4 +1,5 @@
 import datetime
+import time
 import glob
 import gzip
 import json
@@ -15,6 +16,7 @@ from .helpers import get_settings, ParseFileName, Detection, DB_PATH
 from .notifications import sendAppriseNotifications
 
 log = logging.getLogger(__name__)
+eec_time = time.now()
 
 
 def get_safe_title(title):
@@ -117,19 +119,17 @@ def write_to_file(file: ParseFileName, detection: Detection):
 
 def exec_extra_action(detection: Detection):
     conf=get_settings()
-    #OWL_SOUND_WAV = '/home/piuser/BirdNET-Pi/Owl.wav'
+    # read EEC setting from birdnet.conf
     OWL_SOUND_WAV = os.path.expanduser(f'~/BirdNET-Pi/{conf["EEC_FILE_DIR"]}{conf["EEC_FILE"]}')
-    #EXEC_COMMAND = f'aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}'
     EXEC_COMMAND = f'{conf["EEC_EXEC"]} {OWL_SOUND_WAV}'
     com_name = detection.common_name
-    if com_name.upper().find('WOODPECKER') >= 0:
+    if com_name.upper().find('WOODPECKER') >= 0 and (time.now()-eec_time >=60):
         log.info(f'(Testing) Extra action requested for {detection.common_name} detection.')
-        #log.info(f'RUNNING: aplay -D hw:CARD=Headphones {OWL_SOUND_WAV}')
-        log.info (f'EXEC_COMMAND={EXEC_COMMAND}')
         #result = subprocess.run(['aplay', '-D', 'hw:CARD=Headphones', f'{OWL_SOUND_WAV}'],
         #                        check=True, capture_output=True)
         result = subprocess.run(EXEC_COMMAND.split(' '),
                                 check=True, capture_output=True)
+        eec_time = time.now()
     # the standard error handling as used in above fns() doesn't work here, as 
     # aplay is reporting playback stats to stderr
     #ret = result.stdout.decode('utf-8')
