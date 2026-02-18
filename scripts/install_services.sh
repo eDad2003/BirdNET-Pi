@@ -17,7 +17,7 @@ install_depends() {
   curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
   apt -qqq update && apt -qqy upgrade
   echo "icecast2 icecast2/icecast-setup boolean false" | debconf-set-selections
-  apt install -qqy caddy sqlite3 php-sqlite3 php-fpm php-curl php-xml php-zip php icecast2 \
+  apt install --no-install-recommends -qqy caddy sqlite3 php-sqlite3 php-fpm php-curl php-xml php-zip php icecast2 \
     pulseaudio avahi-utils sox libsox-fmt-mp3 alsa-utils ffmpeg \
     wget curl unzip bc \
     python3-pip python3-venv lsof net-tools inotify-tools
@@ -65,6 +65,7 @@ create_necessary_dirs() {
   [ -L ${EXTRACTED}/spectrogram.png ] || sudo -u ${USER} ln -sf ${RECS_DIR}/StreamData/spectrogram.png ${EXTRACTED}/spectrogram.png
 
   sudo -u ${USER} ln -fs $my_dir/exclude_species_list.txt $my_dir/scripts
+  sudo -u ${USER} ln -fs $my_dir/confirmed_species_list.txt $my_dir/scripts
   sudo -u ${USER} ln -fs $my_dir/include_species_list.txt $my_dir/scripts
   sudo -u ${USER} ln -fs $my_dir/whitelist_species_list.txt $my_dir/scripts
   sudo -u ${USER} ln -fs $my_dir/homepage/* ${EXTRACTED}
@@ -82,6 +83,7 @@ create_necessary_dirs() {
   sudo -u ${USER} ln -fs $my_dir/templates/phpsysinfo.ini ${HOME}/phpsysinfo/
   sudo -u ${USER} ln -fs $my_dir/templates/green_bootstrap.css ${HOME}/phpsysinfo/templates/
   sudo -u ${USER} ln -fs $my_dir/templates/index_bootstrap.html ${HOME}/phpsysinfo/templates/html
+  sudo -u ${USER} ln -sf $my_dir/model/labels_nm/labels_en.txt $my_dir/model/labels_flickr.txt
   chmod -R g+rw $my_dir
   chmod -R g+rw ${RECS_DIR}
 }
@@ -118,7 +120,6 @@ install_recording_service() {
 [Unit]
 Description=BirdNET Recording
 [Service]
-Environment=XDG_RUNTIME_DIR=/run/user/1000
 Restart=always
 Type=simple
 RestartSec=3
@@ -137,7 +138,6 @@ install_custom_recording_service() {
 [Unit]
 Description=BirdNET Custom Recording
 [Service]
-Environment=XDG_RUNTIME_DIR=/run/user/1000
 Restart=always
 Type=simple
 RestartSec=3
@@ -318,8 +318,9 @@ Description=BirdNET-Pi Web Terminal
 Restart=on-failure
 RestartSec=3
 Type=simple
+User=${USER}
 Environment=TERM=xterm-256color
-ExecStart=/usr/local/bin/gotty --address localhost -w -p 8888 --path terminal --title-format "BirdNET-Pi Terminal" login
+ExecStart=/usr/local/bin/gotty --address localhost -w -p 8888 --path terminal --title-format "BirdNET-Pi Terminal" bash -c 'read -p "Login: " username && [[ "\$username" =~ ^[-_.a-z0-9]{1,30}$ ]] && su --pty -l \$username'
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -341,8 +342,6 @@ EOF
 install_phpsysinfo() {
   sudo -u ${USER} git clone https://github.com/phpsysinfo/phpsysinfo.git \
     ${HOME}/phpsysinfo
-  gottyservice="gotty-$(uname -m)"
-  sed -i "s/,gotty,/,${gottyservice},/g" "$HOME"/BirdNET-Pi/templates/phpsysinfo.ini
 }
 
 config_icecast() {
@@ -366,7 +365,6 @@ Description=BirdNET-Pi Live Stream
 After=network-online.target
 Requires=network-online.target
 [Service]
-Environment=XDG_RUNTIME_DIR=/run/user/1000
 Restart=always
 Type=simple
 RestartSec=3
@@ -387,6 +385,10 @@ install_weekly_cron() {
   sed "s/\$USER/$USER/g" $my_dir/templates/weekly_report.cron >> /etc/crontab
 }
 
+install_automatic_update_cron() {
+  sed "s/\$USER/$USER/g" $my_dir/templates/automatic_update.cron >> /etc/crontab
+}
+
 chown_things() {
   chown -R $USER:$USER $HOME/Bird*
 }
@@ -404,6 +406,7 @@ install_services() {
   set_hostname
   update_etc_hosts
   set_login
+  install_tmp_mount
 
   install_depends
   install_scripts
@@ -421,6 +424,7 @@ install_services() {
   install_birdnet_mount
   install_cleanup_cron
   install_weekly_cron
+  install_automatic_update_cron
   increase_caddy_timeout
 
   create_necessary_dirs
