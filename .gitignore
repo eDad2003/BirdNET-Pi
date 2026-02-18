@@ -27,7 +27,7 @@
 *.pyc
 *.flac
 .vscode
-model/*
+model/labels.txt
 datasets/
 birdnet.conf
 IdentifiedSoFar.txt
@@ -36,14 +36,16 @@ Birders_Guide_Installer_Configuration.txt
 birdnet/
 templates/*.service
 scripts/*.txt
-scripts/birds.db
+scripts/*.db
 analyzing_now.txt
 apprise.txt
+body.txt
 BirdDB.txt
 exclude_species_list.txt
 firstrun.ini
 HUMAN.txt
 include_species_list.txt
+whitelist_species_list.txt
 /nbproject/private/
 homepage/images/.DS_Store
 .project

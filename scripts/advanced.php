@@ -5,8 +5,17 @@ error_reporting(E_ERROR);
 require_once "scripts/common.php";
 $home = get_home();
 $config = get_config();
+$user = get_user();
 
 ensure_authenticated();
+
+if (isset($_GET['run_species_count'])) {
+   echo "<script>";
+   $output = shell_exec("sudo -u $user ".$home."/BirdNET-Pi/scripts/disk_species_count.sh 2>&1");
+   $escaped_output = htmlspecialchars($output, ENT_QUOTES | ENT_SUBSTITUTE);
+   echo "alert(`$escaped_output`);";
+   echo "</script>";
+ }
 
 if(isset($_GET['submit'])) {
   $contents = file_get_contents('/etc/birdnet/birdnet.conf');
@@ -130,6 +139,13 @@ if(isset($_GET['submit'])) {
     }
   }
 
+  if (isset($_GET["purge_threshold"])) {
+    $purge_threshold = $_GET["purge_threshold"];
+    if (strcmp($purge_threshold, $config['PURGE_THRESHOLD']) !== 0) {
+        $contents = preg_replace("/PURGE_THRESHOLD=.*/", "PURGE_THRESHOLD=$purge_threshold", $contents);
+    }
+}
+
 if (isset($_GET["max_files_species"])) {
     $max_files_species = $_GET["max_files_species"];
     if (strcmp($max_files_species, $config['MAX_FILES_SPECIES']) !== 0) {
@@ -187,6 +203,15 @@ if (isset($_GET["max_files_species"])) {
     $contents = preg_replace("/SILENCE_UPDATE_INDICATOR=.*/", "SILENCE_UPDATE_INDICATOR=0", $contents);
   }
 
+  if(isset($_GET["automatic_update"])) {
+    $automatic_update = 1;
+    if(strcmp($automatic_update,$config['AUTOMATIC_UPDATE']) !== 0) {
+      $contents = preg_replace("/AUTOMATIC_UPDATE=.*/", "AUTOMATIC_UPDATE=$automatic_update", $contents);
+    }
+  } else {
+    $contents = preg_replace("/AUTOMATIC_UPDATE=.*/", "AUTOMATIC_UPDATE=0", $contents);
+  }
+
   if(isset($_GET["raw_spectrogram"])) {
     $raw_spectrogram = 1;
     if(strcmp($RAW_SPECTROGRAM,$config['RAW_SPECTROGRAM']) !== 0) {
@@ -194,6 +219,15 @@ if (isset($_GET["max_files_species"])) {
     }
   } else {
     $contents = preg_replace("/RAW_SPECTROGRAM=.*/", "RAW_SPECTROGRAM=0", $contents);
+  }
+
+  if(isset($_GET["rare_species_threshold"])) {
+    $rare_species_threshold = $_GET["rare_species_threshold"];
+    if(strcmp($rare_species_threshold, $config['RARE_SPECIES_THRESHOLD']) !== 0) {
+        $contents = preg_replace("/RARE_SPECIES_THRESHOLD=.*/", "RARE_SPECIES_THRESHOLD=$rare_species_threshold", $contents);
+    }
+  } else {
+      $contents = preg_replace("/RARE_SPECIES_THRESHOLD=.*/", "RARE_SPECIES_THRESHOLD=30", $contents);
   }
 
   if(isset($_GET["custom_image"])) {
@@ -246,8 +280,7 @@ if (isset($_GET["max_files_species"])) {
   }
 }
 
-$count_labels = count(file($home."/BirdNET-Pi/model/labels.txt"));
-$count = $count_labels;
+$count = 6000;
 ?>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -288,14 +321,18 @@ $newconfig = get_config();
       <input name="full_disk" type="radio" id="keep" value="keep" <?php if (strcmp($newconfig['FULL_DISK'], "keep") == 0) { echo "checked"; }?>>Keep</label>
       <p>When the disk becomes full, you can choose to 'purge' old files to make room for new ones or 'keep' your data and stop all services instead.<br>Note: you can exclude specific files from 'purge' on the Recordings page.</p>
       <br>
-      <label for="max_files_species">Amount of files to keep for each species :</label>
+      <label for="purge_threshold">Purge Threshold (Disk Used %):</label>
+      <input name="purge_threshold" type="number" style="width:6em;" min="20" max="99" step="1" value="<?php print($newconfig['PURGE_THRESHOLD']);?>"/>
+      <p>Defines how full the disk should be before the purge operations occur.<br>Note: This variable is still active if Keep is set. This means that the servies will be stopped at the purge threshold.</p><br>
+      <label for="max_files_species">Number of files to keep for each species :</label>
       <input name="max_files_species" type="number" style="width:6em;" min="0" step="1" value="<?php print($newconfig['MAX_FILES_SPECIES']);?>"/>
       </td></tr><tr><td>
-      If different than 0 (keep all), defines the maximum number of files to be kept for each species, with priority give to files with highest confidence. 
-      This value does not take into account the last 7 days (protected by default).
+      If different than 0 (keep all), defines the number of files to keep for each species, with priority given to files with higher confidence. This value does not include files from the last 7 days, these new files are protected against auto-deletion.
       </td></tr><tr><td>
-      Note only the spectrogram and audio files are deleted, the obsevation data remains in the database.
+      Note only the spectrogram and audio files are deleted, the observation data remains in the database.
       The files protected through the "lock" icon are also not affected.
+      <br>
+      <button type="submit" name="run_species_count" value="1" onclick="{this.innerHTML = 'Loading ... please wait.';this.classList.add('disabled')}"><i>[Click here for disk usage summary]</i></button>
       </td></tr></table><br>
       <table class="settingstable"><tr><td>
 
@@ -425,15 +462,26 @@ foreach($formats as $format){
       <input style="width:40ch;" name="birdnetpi_url" type="url" value="<?php print($newconfig['BIRDNETPI_URL']);?>" /><br>
       <p>The BirdNET-Pi URL is how the main page will be reached. If you want your installation to respond to an IP address, place that here, but be sure to indicate "<i>http://</i>".<br>Example for IP: <i>http://192.168.0.109</i><br>Example if you own your own domain: <i>https://virginia.birdnetpi.com</i></p>
       </td></tr></table><br>
+		
       <table class="settingstable"><tr><td>
       <h2>Options</h2>
+		  
       <label for="silence_update_indicator">Silence Update Indicator: </label>
-      <input type="checkbox" name="silence_update_indicator" <?php if($newconfig['SILENCE_UPDATE_INDICATOR'] == 1) { echo "checked"; };?> ><br>
-      <p>This allows you to quiet the display of how many commits your installation is behind by relative to the Github repo. This number appears next to "Tools" when you're 50 or more commits behind.</p>
-
+      <input type="checkbox" name="silence_update_indicator" <?php if($newconfig['SILENCE_UPDATE_INDICATOR'] == 1) { echo "checked"; };?> >
+      <p>This allows you to quiet the display of how many commits your installation is behind by relative to the Github repo. This number appears next to "Tools" when you're 50 or more commits behind.</p><br>
+		  
+      <label for="automatic_update">Automatic Update: </label>
+      <input type="checkbox" name="automatic_update" <?php if($newconfig['AUTOMATIC_UPDATE'] == 1) { echo "checked"; };?> >
+      <p>This configures an automatic update of the installation each Sunday at 3:00 AM but the timing can be changed using crontab.</p><br>
+		  
       <label for="raw_spectrogram">Minimalist Spectrograms: </label>
-      <input type="checkbox" name="raw_spectrogram" <?php if($newconfig['RAW_SPECTROGRAM'] == 1) { echo "checked"; };?> ><br>
-      <p>This allows you to remove the axes and labels of the spectrograms that are generated by Sox for each detection for a cleaner appearance.</p>
+      <input type="checkbox" name="raw_spectrogram" <?php if($newconfig['RAW_SPECTROGRAM'] == 1) { echo "checked"; };?> >
+      <p>This allows you to remove the axes and labels of the spectrograms that are generated by Sox for each detection for a cleaner appearance.</p><br>
+
+      <label for="rare_species_threshold">Rare Species Threshold (days): </label>
+      <input type="number" name="rare_species_threshold" min="1" value="<?php echo isset($newconfig['RARE_SPECIES_THRESHOLD']) ? $newconfig['RARE_SPECIES_THRESHOLD'] : 30; ?>">
+      <p>This setting defines after how many days since last detection a species is considered rare. Default is 30 days.</p>
+		  
       </td></tr></table><br>
 
       <table class="settingstable"><tr><td>

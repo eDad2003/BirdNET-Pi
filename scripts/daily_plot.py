@@ -13,11 +13,12 @@ import seaborn as sns
 from matplotlib import rcParams
 from matplotlib.colors import LogNorm
 
-from utils.helpers import DB_PATH, get_settings
+from utils.helpers import DB_PATH, FONT_DIR, get_settings, get_font
 
 
 def get_data(now=None):
-    conn = sqlite3.connect(DB_PATH)
+    uri = f"file:{DB_PATH}?mode=ro"
+    conn = sqlite3.connect(uri, uri=True)
     if now is None:
         now = datetime.now()
     df = pd.read_sql_query(f"SELECT * from detections WHERE Date = DATE('{now.strftime('%Y-%m-%d')}')",
@@ -68,14 +69,14 @@ def create_plot(df_plt_today, now, is_top=None):
     if is_top is not None:
         readings = 10
         if is_top:
-            plt_selection_today = (df_plt_today['Com_Name'].value_counts()[:readings])
+            plt_selection_today = (df_plt_today['Sci_Name'].value_counts()[:readings])
         else:
-            plt_selection_today = (df_plt_today['Com_Name'].value_counts()[-readings:])
+            plt_selection_today = (df_plt_today['Sci_Name'].value_counts()[-readings:])
     else:
-        plt_selection_today = df_plt_today['Com_Name'].value_counts()
-        readings = len(df_plt_today['Com_Name'].value_counts())
+        plt_selection_today = df_plt_today['Sci_Name'].value_counts()
+        readings = len(df_plt_today['Sci_Name'].value_counts())
 
-    df_plt_selection_today = df_plt_today[df_plt_today.Com_Name.isin(plt_selection_today.index)]
+    df_plt_selection_today = df_plt_today[df_plt_today.Sci_Name.isin(plt_selection_today.index)]
 
     conf = get_settings()
 
@@ -84,15 +85,15 @@ def create_plot(df_plt_today, now, is_top=None):
     if conf['COLOR_SCHEME'] == "dark":
         facecolor = 'darkgrey'
     else:
-        facecolor = 'none'
+        facecolor = '#77C487'
 
     f, axs = plt.subplots(1, 2, figsize=(10, height), gridspec_kw=dict(width_ratios=[3, 6]), facecolor=facecolor)
 
     # generate y-axis order for all figures based on frequency
-    freq_order = df_plt_selection_today['Com_Name'].value_counts().index
+    freq_order = df_plt_selection_today['Sci_Name'].value_counts().index
 
     # make color for max confidence --> this groups by name and calculates max conf
-    confmax = df_plt_selection_today.groupby('Com_Name')['Confidence'].max()
+    confmax = df_plt_selection_today.groupby('Sci_Name')['Confidence'].max()
     # reorder confmax to detection frequency order
     confmax = confmax.reindex(freq_order)
 
@@ -119,14 +120,16 @@ def create_plot(df_plt_today, now, is_top=None):
         name = "Combo2"
 
     # Generate frequency plot
-    plot = sns.countplot(y='Com_Name', hue='Com_Name', legend=False, data=df_plt_selection_today,
-                         palette=colors, order=freq_order, ax=axs[0], edgecolor='lightgrey')
+    plot = sns.countplot(y='Sci_Name', hue='Sci_Name', legend=False, data=df_plt_selection_today,
+                         palette=dict(zip(confmax.index, colors)), order=freq_order, ax=axs[0], edgecolor='lightgrey')
 
     # Prints Max Confidence on bars
     show_values_on_bars(axs[0], confmax)
 
     # Try plot grid lines between bars - problem at the moment plots grid lines on bars - want between bars
-    yticklabels = ['\n'.join(textwrap.wrap(ticklabel.get_text(), wrap_width(ticklabel.get_text()))) for ticklabel in plot.get_yticklabels()]
+    names_key = df_plt_today.sort_values('Time', ascending=False).groupby('Sci_Name').first()['Com_Name']
+    common_names = [names_key[tick_label.get_text()] for tick_label in plot.get_yticklabels()]
+    yticklabels = ['\n'.join(textwrap.wrap(ticklabel, wrap_width(ticklabel))) for ticklabel in common_names]
     # Next two lines avoid a UserWarning on set_ticklabels() requesting a fixed number of ticks
     yticks = plot.get_yticks()
     plot.set_yticks(yticks)
@@ -135,7 +138,7 @@ def create_plot(df_plt_today, now, is_top=None):
     plot.set(xlabel="Detections")
 
     # Generate crosstab matrix for heatmap plot
-    heat = pd.crosstab(df_plt_selection_today['Com_Name'], df_plt_selection_today['Hour of Day'])
+    heat = pd.crosstab(df_plt_selection_today['Sci_Name'], df_plt_selection_today['Hour of Day'])
 
     # Order heatmap Birds by frequency of occurrance
     heat.index = pd.CategoricalIndex(heat.index, categories=freq_order)
@@ -182,18 +185,12 @@ def create_plot(df_plt_today, now, is_top=None):
 
 
 def load_fonts():
-    conf = get_settings()
     # Add every font at the specified location
-    font_dir = [os.path.expanduser('~/BirdNET-Pi/homepage/static')]
+    font_dir = [FONT_DIR]
     for font in font_manager.findSystemFonts(font_dir, fontext='ttf'):
         font_manager.fontManager.addfont(font)
     # Set font family globally
-    if conf['DATABASE_LANG'] in ['ja', 'zh']:
-        rcParams['font.family'] = 'Noto Sans JP'
-    elif conf['DATABASE_LANG'] == 'th':
-        rcParams['font.family'] = 'Noto Sans Thai'
-    else:
-        rcParams['font.family'] = 'Roboto Flex'
+    rcParams['font.family'] = get_font()['font.family']
 
 
 def main(daemon, sleep_m):
