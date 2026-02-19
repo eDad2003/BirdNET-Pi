@@ -16,6 +16,8 @@ from utils.helpers import get_settings, get_wav_files, ANALYZING_NOW
 from utils.classes import ParseFileName
 from utils.reporting import extract_detection, summary, write_to_file, write_to_db, apprise, bird_weather, heartbeat, \
     update_json_file
+#MK# add custom function for woodpecker detection
+from utils.reporting import exec_extra_action
 
 shutdown = False
 

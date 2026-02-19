@@ -128,6 +128,7 @@ def write_to_file(file: ParseFileName, detection: Detection):
     with open(os.path.expanduser('~/BirdNET-Pi/BirdDB.txt'), 'a') as rfile:
         rfile.write(f'{summary(file, detection)}\n')
 
+#MK# exec_extra_action - will execute EEC_EXEC {wav file} if EEC_DETECT species is detected (with a 300 sec pause)
 def exec_extra_action(detection: Detection):
     global eec_time
     conf=get_settings()
