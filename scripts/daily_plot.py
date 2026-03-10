@@ -63,8 +63,11 @@ def show_values_on_bars(ax, label):
     ytick_labels = [t.get_text() for t in ax.get_yticklabels()]
     ytick_positions = ax.get_yticks()
 
+    # Get the x-axis limit to determine available room
+    x_max = ax.get_xlim()[1]
+
     for p in ax.patches:
-        x = p.get_x() + p.get_width() * 0.9
+        bar_right = p.get_x() + p.get_width()
         y = p.get_y() + p.get_height() / 2
 
         # Find which species this bar belongs to by matching y-position
@@ -79,7 +82,16 @@ def show_values_on_bars(ax, label):
         else:
             color = 'darkgreen'
 
-        ax.text(x, y, value, bbox=bbox, ha='center', va='center', size=9, color=color)
+        # Place to the right of the bar if there's room, otherwise inside with 10% margin
+        margin = x_max * 0.10
+        if bar_right + margin < x_max:
+            x = bar_right + margin * 0.5
+            ha = 'left'
+        else:
+            x = bar_right - p.get_width() * 0.10
+            ha = 'right'
+
+        ax.text(x, y, value, bbox=bbox, ha=ha, va='center', size=9, color=color)
 
 
 def wrap_width(txt):
