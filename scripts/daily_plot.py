@@ -35,6 +35,8 @@ def get_data(now=None):
 
 
 # Function to show value on bars - from https://stackoverflow.com/questions/43214978/seaborn-barplot-displaying-values
+'''
+#MK# old function - displays count value, redundant IMO
 def show_values_on_bars(ax, label):
     conf = get_settings()
 
@@ -45,6 +47,32 @@ def show_values_on_bars(ax, label):
         # value = '{:.0%}'.format(label.iloc[i])
         # Species Count Total
         value = '{:n}'.format(p.get_width())
+        bbox = {'facecolor': 'lightgrey', 'edgecolor': 'none', 'pad': 1.0}
+        if conf['COLOR_SCHEME'] == "dark":
+            color = 'black'
+        else:
+            color = 'darkgreen'
+
+        ax.text(x, y, value, bbox=bbox, ha='center', va='center', size=9, color=color)
+'''
+#MK# new function to display the maximum confidence detected today.  Built by Claude
+def show_values_on_bars(ax, label):
+    conf = get_settings()
+
+    # Build mapping from y-position to species name
+    ytick_labels = [t.get_text() for t in ax.get_yticklabels()]
+    ytick_positions = ax.get_yticks()
+
+    for p in ax.patches:
+        x = p.get_x() + p.get_width() * 0.9
+        y = p.get_y() + p.get_height() / 2
+
+        # Find which species this bar belongs to by matching y-position
+        closest_idx = int(np.argmin([abs(yp - y) for yp in ytick_positions]))
+        species = ytick_labels[closest_idx]
+
+        # Look up max confidence by species name
+        value = '{:.0%}'.format(label[species])
         bbox = {'facecolor': 'lightgrey', 'edgecolor': 'none', 'pad': 1.0}
         if conf['COLOR_SCHEME'] == "dark":
             color = 'black'
