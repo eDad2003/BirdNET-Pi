@@ -82,13 +82,13 @@ def show_values_on_bars(ax, label):
         else:
             color = 'darkgreen'
 
-        # Place to the right of the bar if there's room, otherwise inside with 10% margin
+        # Place to the right of the bar if there's room, otherwise inside with 5% margin
         margin = x_max * 0.10
         if bar_right + margin < x_max:
             x = bar_right + margin * 0.5
             ha = 'left'
         else:
-            x = bar_right - p.get_width() * 0.10
+            x = bar_right - p.get_width() * 0.05
             ha = 'right'
 
         ax.text(x, y, value, bbox=bbox, ha=ha, va='center', size=9, color=color)
