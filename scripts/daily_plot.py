@@ -13,7 +13,7 @@ import seaborn as sns
 from matplotlib import rcParams
 from matplotlib.colors import LogNorm
 #MK# get better x-axis labels
-from matplotlib.ticker import ScalarFormatter
+from matplotlib.ticker import FuncFormatter
 
 from utils.helpers import DB_PATH, FONT_DIR, get_settings, get_font
 
@@ -170,12 +170,9 @@ def create_plot(df_plt_today, now, is_top=None):
     #MK# Prints Max Confidence on bars, use log scale, properly formatted
     show_values_on_bars(axs[0], confmax)
     axs[0].set_xscale('log')
-    axs[0].set_xscale('log')
     axs[0].set_xlim(left=1)
-    formatter = ScalarFormatter()
-    formatter.set_scientific(False)
-    axs[0].xaxis.set_major_formatter(formatter)
-
+    axs[0].xaxis.set_major_formatter(FuncFormatter(lambda x, _: f'{int(x)}'))
+    
     # Try plot grid lines between bars - problem at the moment plots grid lines on bars - want between bars
     names_key = df_plt_today.sort_values('Time', ascending=False).groupby('Sci_Name').first()['Com_Name']
     common_names = [names_key[tick_label.get_text()] for tick_label in plot.get_yticklabels()]
