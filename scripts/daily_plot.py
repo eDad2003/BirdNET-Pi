@@ -138,8 +138,8 @@ def create_plot(df_plt_today, now, is_top=None):
     confmax = confmax.reindex(freq_order)
 
     # norm values for color palette
-    #MK# changing so that the color of the bar chart ranges from 0.75 - 1.00 confidences
-    norm = plt.Normalize(0.75, 1.0)
+    #MK# changing so that the color of the bar chart ranges from [Min Confidence Setting]  - 1.00 confidences
+    norm = plt.Normalize(float(conf['CONFIDENCE']), 1.0)
     #norm = plt.Normalize(confmax.values.min(), confmax.values.max())
     if is_top or is_top is None:
         # Set Palette for graphics
