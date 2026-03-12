@@ -167,6 +167,8 @@ def create_plot(df_plt_today, now, is_top=None):
 
     # Prints Max Confidence on bars
     show_values_on_bars(axs[0], confmax)
+    #MK# use log scale for detections
+    axs[0].set_xscale('log')
 
     # Try plot grid lines between bars - problem at the moment plots grid lines on bars - want between bars
     names_key = df_plt_today.sort_values('Time', ascending=False).groupby('Sci_Name').first()['Com_Name']
