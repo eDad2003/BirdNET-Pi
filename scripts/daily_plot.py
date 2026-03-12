@@ -138,7 +138,9 @@ def create_plot(df_plt_today, now, is_top=None):
     confmax = confmax.reindex(freq_order)
 
     # norm values for color palette
-    norm = plt.Normalize(confmax.values.min(), confmax.values.max())
+    #MK# changing so that the color of the bar chart ranges from 0.75 - 1.00 confidences
+    norm = plt.Normalize(0.75, 1.0)
+    #norm = plt.Normalize(confmax.values.min(), confmax.values.max())
     if is_top or is_top is None:
         # Set Palette for graphics
         if conf['COLOR_SCHEME'] == "dark":
@@ -190,9 +192,12 @@ def create_plot(df_plt_today, now, is_top=None):
     # mask out zeros, so they do not show up in the final plot. this happens when max count/h is one
     heat[heat == 0] = np.nan
 
-    # Generatie heatmap plot
-    plot = sns.heatmap(heat, norm=LogNorm(),  annot=True,  annot_kws={"fontsize": 7}, fmt="g", cmap=colors, square=False,
+    # Generate heatmap plot
+    #MK# change the color strategy from "colors" to "pal"
+    plot = sns.heatmap(heat, norm=LogNorm(),  annot=True,  annot_kws={"fontsize": 7}, fmt="g", cmap=pal, square=False,
                        cbar=False, linewidths=0.5, linecolor="Grey", ax=axs[1], yticklabels=False)
+    #plot = sns.heatmap(heat, norm=LogNorm(),  annot=True,  annot_kws={"fontsize": 7}, fmt="g", cmap=colors, square=False,
+    #                   cbar=False, linewidths=0.5, linecolor="Grey", ax=axs[1], yticklabels=False)
 
     # Set color and weight of tick label for current hour
     for label in plot.get_xticklabels():
