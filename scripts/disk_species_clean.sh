@@ -54,13 +54,9 @@ while read -r species; do
     species_san="${species/-/=}"
     # Dummy file to execute the rm using xargs even if no files are there. Best solution found for code speed
     touch temp
+    #MK# only preserve last 3 days (incl today) of mp3s, not 7 days from original code
     find */"$species" -type f -name "*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*.*" \
         -not -name "*.png" \
-        -not -name "*$(date -d "-7$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-6$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-5$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-4$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-3$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date -d "-2$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date -d "-1$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date '+%Y-%m-%d')*" |
