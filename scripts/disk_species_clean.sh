@@ -56,11 +56,6 @@ while read -r species; do
     touch temp
     find */"$species" -type f -name "*[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*.*" \
         -not -name "*.png" \
-        -not -name "*$(date -d "-7$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-6$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-5$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-4$dateformat" '+%Y-%m-%d')*" \
-        -not -name "*$(date -d "-3$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date -d "-2$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date -d "-1$dateformat" '+%Y-%m-%d')*" \
         -not -name "*$(date '+%Y-%m-%d')*" |
