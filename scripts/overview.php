@@ -428,13 +428,57 @@ display_species($rare_species, 'Rare Species', true);
 <?php
 $refresh = $config['RECORDING_LENGTH'];
 $dividedrefresh = $refresh/4;
-if($dividedrefresh < 1) { 
+if($dividedrefresh < 1) {
   $dividedrefresh = 1;
 }
 $time = time();
 if (file_exists('./Charts/'.$chart)) {
-  echo "<img id='chart' src=\"Charts/$chart?nocache=$time\">";
-} 
+  //MK// 2026-04-25 Adding bird details to Overview
+  $json_chart = './Charts/' . substr($chart, 0, -4) . '.json';
+  $has_overlay = !empty($config['IMAGE_PROVIDER']) && file_exists($json_chart);
+
+  if ($has_overlay) {
+    $label_data = json_decode(file_get_contents($json_chart), true);
+    if (empty($image_provider)) {
+      if ($config['IMAGE_PROVIDER'] === 'FLICKR') {
+        $image_provider = new Flickr();
+      } else {
+        $image_provider = new Wikipedia();
+      }
+      if ($image_provider->is_reset()) {
+        $_SESSION['images'] = [];
+      }
+    }
+    // Dots are positioned relative to the image wrapper so 100% = image width,
+    // making right:calc(100% + 10px) land exactly 10px left of the image edge.
+    $dot_spans = '';
+    $chart_iter = 2000;
+    foreach ($label_data as $species) {
+      $chart_iter++;
+      $comname_key = preg_replace('/\'/', '', preg_replace('/ /', '_', $species['com_name']));
+      $key = array_search($comname_key, array_column($_SESSION['images'], 0));
+      if ($key !== false) {
+        $img = $_SESSION['images'][$key];
+      } else {
+        $cached = $image_provider->get_image($species['sci_name']);
+        $img = [$comname_key, $cached['image_url'], $cached['title'], $cached['photos_url'], $cached['author_url'], $cached['license_url']];
+        array_push($_SESSION['images'], $img);
+      }
+      if (!empty($img[1])) {
+        $pct = round($species['frac_from_top'] * 100, 2);
+        $title_attr = htmlspecialchars($species['com_name']);
+        $dot_spans .= "<span onclick='setModalText($chart_iter,\"" . urlencode($img[2]) . "\",\"" . $img[3] . "\",\"" . $img[4] . "\",\"" . $img[1] . "\",\"" . $img[5] . "\")' title='$title_attr' style='position:absolute;top:{$pct}%;right:calc(100% + 10px);transform:translateY(-50%);cursor:pointer;font-size:14px;color:#1a73e8;z-index:5;line-height:1;user-select:none;'>&#9679;</span>";
+      }
+    }
+    // Outer flex div centers the inner wrapper; inner is a flex item so it
+    // shrinks to the image width — that makes position:absolute % correct.
+    echo "<div style='display:flex;justify-content:center;'>";
+    echo "  <div style='position:relative;'>{$dot_spans}<img id='chart' src=\"Charts/$chart?nocache=$time\"></div>";
+    echo "</div>";
+  } else {
+    echo "<img id='chart' src=\"Charts/$chart?nocache=$time\">";
+  }
+}
 ?>
 </div>
 

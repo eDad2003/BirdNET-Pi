@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sqlite3
 import textwrap
@@ -230,6 +231,21 @@ def create_plot(df_plt_today, now, is_top=None):
     # Save combined plot
     save_name = os.path.expanduser(f"~/BirdSongs/Extracted/Charts/{name}-{now.strftime('%Y-%m-%d')}.png")
     plt.savefig(save_name)
+
+    #MK# 2026-04-25 Adding bird details to Overview
+    # Save y-axis label positions so the PHP overlay can align clickable links
+    fig_height_px = f.get_size_inches()[1] * f.dpi
+    label_positions = []
+    for i, (sci, com) in enumerate(zip(freq_order, common_names)):
+        _, display_y = axs[0].transData.transform((0, i))
+        label_positions.append({
+            'com_name': com,
+            'sci_name': sci,
+            'frac_from_top': round(1.0 - display_y / fig_height_px, 4)
+        })
+    with open(save_name.replace('.png', '.json'), 'w') as jf:
+        json.dump(label_positions, jf)
+
     plt.show()
     plt.close()
 
